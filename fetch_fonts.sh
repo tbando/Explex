@@ -1,22 +1,23 @@
 #!/bin/bash
 set -e
 
-# build.ini から値を読み取る関数
+# build.ini から特定のセクションの値を読み取る関数
 get_version() {
-    grep "^$1 =" build.ini | cut -d'=' -f2 | xargs
+    local section=$1
+    local key=$2
+    awk -F ' *= *' '/\['"$section"'\]/{a=1} a==1 && $1=='"\"$key\""'{print $2; exit}' build.ini | xargs
 }
 
-PROTO_VER=$(get_version "0XPROTO")
-NERD_VER=$(get_version "NERDFONTS")
-PLEX_VER=$(get_version "IBMPLEX")
+PROTO_VER=$(get_version "SOURCE_VERSIONS" "0XPROTO")
+NERD_VER=$(get_version "SOURCE_VERSIONS" "NERDFONTS")
+PLEX_VER=$(get_version "SOURCE_VERSIONS" "IBMPLEX")
 
 echo "Fetching source fonts..."
 echo "0xProto: $PROTO_VER"
 echo "Nerd Fonts: $NERD_VER"
 echo "IBM Plex Sans JP: $PLEX_VER"
 
-# 0xProto のダウンロード (ドットをアンダースコアに変換したファイル名が必要な場合がある)
-# 例: 2.502 -> 2_502
+# 0xProto のダウンロード
 PROTO_VER_UNDERSCORE=$(echo $PROTO_VER | tr '.' '_')
 echo "--- Downloading 0xProto $PROTO_VER ---"
 curl -L -o 0xProto.zip "https://github.com/0xType/0xProto/releases/download/${PROTO_VER}/0xProto_${PROTO_VER_UNDERSCORE}.zip"
