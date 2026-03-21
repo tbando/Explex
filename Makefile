@@ -12,7 +12,7 @@ build-image:
 # 標準の python3 から import fontforge して実行することも可能です。
 build: build-image
 	docker run --rm -v $(PWD):/work $(IMAGE_NAME) \
-		bash -c "python3 ./fontforge_script.py --nerd-font && python3 ./fonttools_script.py"
+		bash -c "python3 ./fontforge_script.py --nerd-font --35 --console && python3 ./fonttools_script.py"
 
 # ビルド成果物の削除
 clean:
