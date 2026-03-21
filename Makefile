@@ -1,6 +1,10 @@
 IMAGE_NAME = explex-builder
 
-.PHONY: build-image build clean
+.PHONY: build-image build clean fetch-fonts
+
+# ソースフォントのダウンロード
+fetch-fonts:
+	./fetch_fonts.sh
 
 # Dockerイメージの作成
 build-image:
