@@ -147,6 +147,11 @@ def generate_font(jp_style, eng_style, merged_style, italic=False):
     # 合成するフォントを開く
     jp_font, eng_font = open_fonts(jp_style, eng_style)
 
+    # ひらがな等の全角文字が含まれる行でリガチャが解除される対策としてGSUBテーブルを削除
+    # GPOSもおまけに削除
+    # (マージ前に実行することで、マージ元の 0xProto 等のリガチャを維持する)
+    remove_lookups(jp_font)
+
     # ※従来はEMをここで揃えるが、0xProto と IBM Plex Sans JP は既にEMが揃っているため不要
 
     # Hack フォントを優先するために不要なグリフを削除する
@@ -187,10 +192,6 @@ def generate_font(jp_style, eng_style, merged_style, italic=False):
         transform_half_width(jp_font, eng_font)
         # 規定の幅からはみ出したグリフサイズを縮小する
         down_scale_redundant_size_glyph(eng_font)
-
-    # ひらがな等の全角文字が含まれる行でリガチャが解除される対策としてGSUBテーブルを削除
-    # GPOSもおまけに削除
-    remove_lookups(jp_font)
 
     # 罫線を全角にする
     if not options.get("console"):
