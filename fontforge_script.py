@@ -864,6 +864,11 @@ def edit_meta_data(font, weight: str, variant: str, cap_height: int, x_height: i
     font.horizontalBaseline = None
 
     # メタデータを追加設定する
+    subfamily = weight
+    if subfamily == "BoldItalic":
+        subfamily = "Bold Italic"
+    font.appendSFNTName("English (US)", "SubFamily", subfamily)
+
     font.appendSFNTName("English (US)", "Copyright", COPYRIGHT.strip())
     font.appendSFNTName("English (US)", "Designer", AUTHOR_NAME.strip())
     font.appendSFNTName("English (US)", "Manufacturer", AUTHOR_NAME.strip())
