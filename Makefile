@@ -21,7 +21,7 @@ build: build-image
 # フォントのLintを実行 (Google Fonts等の標準に準拠しているか確認)
 lint: build-image
 	docker run --rm -v $(PWD):/work $(IMAGE_NAME) \
-		fontbakery check-profile universal build/*.ttf
+		fontbakery check-universal build/*.ttf
 
 # ビルド成果物の削除
 clean:
