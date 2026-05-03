@@ -32,9 +32,10 @@ SOURCE_FONTS_DIR = settings.get("DEFAULT", "SOURCE_FONTS_DIR")
 BUILD_FONTS_DIR = settings.get("DEFAULT", "BUILD_FONTS_DIR")
 VENDER_NAME = settings.get("DEFAULT", "VENDER_NAME")
 FONTFORGE_PREFIX = settings.get("DEFAULT", "FONTFORGE_PREFIX")
+FONTTOOLS_PREFIX = settings.get("DEFAULT", "FONTTOOLS_PREFIX")
 IDEOGRAPHIC_SPACE = settings.get("DEFAULT", "IDEOGRAPHIC_SPACE")
-W35_WIDTH_STR = settings.get("DEFAULT", "W35_WIDTH_STR")
 HIDDEN_ZENKAKU_SPACE_STR = settings.get("DEFAULT", "HIDDEN_ZENKAKU_SPACE_STR")
+
 CONSOLE_STR = settings.get("DEFAULT", "CONSOLE_STR")
 NERD_FONTS_STR = settings.get("DEFAULT", "NERD_FONTS_STR")
 EM_ASCENT = int(settings.get("DEFAULT", "EM_ASCENT"))
@@ -42,7 +43,6 @@ EM_DESCENT = int(settings.get("DEFAULT", "EM_DESCENT"))
 OS2_ASCENT = int(settings.get("DEFAULT", "OS2_ASCENT"))
 OS2_DESCENT = int(settings.get("DEFAULT", "OS2_DESCENT"))
 HALF_WIDTH_12 = int(settings.get("DEFAULT", "HALF_WIDTH_12"))
-FULL_WIDTH_35 = int(settings.get("DEFAULT", "FULL_WIDTH_35"))
 
 COPYRIGHT = """[0xProto]
 Copyright (c) 2024, 0xType Project Authors https://github.com/0xType
@@ -115,7 +115,7 @@ def main():
 def usage():
     print(
         f"Usage: {sys.argv[0]} "
-        "[--hidden-zenkaku-space] [--35] [--console] [--nerd-font]"
+        "[--hidden-zenkaku-space] [--console] [--nerd-font]"
     )
 
 
@@ -134,8 +134,6 @@ def get_options():
             options["do-not-delete-build-dir"] = True
         elif arg == "--hidden-zenkaku-space":
             options["hidden-zenkaku-space"] = True
-        elif arg == "--35":
-            options["35"] = True
         elif arg == "--console":
             options["console"] = True
         elif arg == "--nerd-font":
@@ -180,11 +178,8 @@ def generate_font(jp_style, eng_style, merged_style, italic=False):
 
     # 日本語グリフの斜体を生成する
     if italic:
-        if options.get("35"):
-            transform_italic_glyphs(jp_font)
-        else:
-            # 英語フォントを1:2幅に縮めた際に傾斜が緩やかになるため合わせる
-            transform_italic_glyphs(jp_font, italic_slope=8)
+        # 英語フォントを1:2幅に縮めた際に傾斜が緩やかになるため合わせる
+        transform_italic_glyphs(jp_font, italic_slope=8)
 
     # eng_fontを半角幅(600)にする
     width_600(eng_font)
@@ -192,12 +187,10 @@ def generate_font(jp_style, eng_style, merged_style, italic=False):
     # jp_fontで半角幅(500)のグリフの幅を3:5になるよう調整する
     width_600_or_1000(jp_font)
 
-    # 3:5幅版との差分を調整する
-    if not options.get("35"):
-        # 1:2 幅にする
-        transform_half_width(jp_font, eng_font)
-        # 規定の幅からはみ出したグリフサイズを縮小する
-        down_scale_redundant_size_glyph(eng_font)
+    # 1:2 幅にする
+    transform_half_width(jp_font, eng_font)
+    # 規定の幅からはみ出したグリフサイズを縮小する
+    down_scale_redundant_size_glyph(eng_font)
 
     # 罫線を全角にする
     if not options.get("console"):
@@ -238,14 +231,13 @@ def generate_font(jp_style, eng_style, merged_style, italic=False):
 
     # ttfファイルに保存
     # なんらかフラグを立てるとGSUB, GPOSテーブルが削除されて後続の生成処理で影響が出るため注意
-    w35_str = W35_WIDTH_STR if options.get("35") else ""
     eng_font.generate(
-        f"{BUILD_FONTS_DIR}/{FONTFORGE_PREFIX}{FONT_NAME}{w35_str}{variant}-{merged_style}-eng.ttf".replace(
+        f"{BUILD_FONTS_DIR}/{FONTFORGE_PREFIX}{FONT_NAME}{variant}-{merged_style}-eng.ttf".replace(
             " ", ""
         ),
     )
     jp_font.generate(
-        f"{BUILD_FONTS_DIR}/{FONTFORGE_PREFIX}{FONT_NAME}{w35_str}{variant}-{merged_style}-jp.ttf".replace(
+        f"{BUILD_FONTS_DIR}/{FONTFORGE_PREFIX}{FONT_NAME}{variant}-{merged_style}-jp.ttf".replace(
             " ", ""
         ),
     )
@@ -618,7 +610,7 @@ def merge_hack(jp_font, eng_font, style, italic):
                 except Exception:
                     pass
     # EM 1000 にしたときの幅に合わせて調整
-    half_width = int(FULL_WIDTH_35 * 3 / 5)
+    half_width = 600
     for glyph in hack_font.glyphs():
         if glyph.width > 0:
             glyph.transform(psMat.translate((half_width - glyph.width) / 2, 0))
@@ -859,13 +851,12 @@ def edit_meta_data(font, weight: str, variant: str, cap_height: int, x_height: i
     # 水平ベーステーブルを削除
     font.horizontalBaseline = None
 
-    w35_str = W35_WIDTH_STR if options.get("35") else ""
-    family = f"{FONT_NAME}{w35_str} {variant}".strip()
+    family = f"{FONT_NAME} {variant}".strip()
     subfamily = weight
     if subfamily == "BoldItalic":
         subfamily = "Bold Italic"
     fullname = f"{family} {subfamily}".strip()
-    psname = f"{FONT_NAME}{w35_str}{variant}-{weight}".replace(" ", "-")
+    psname = f"{FONT_NAME}{variant}-{weight}".replace(" ", "-")
 
     font.familyname = family
     font.fontname = psname
