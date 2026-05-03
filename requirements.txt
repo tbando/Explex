@@ -1,2 +1,3 @@
 fonttools==4.62.1
 ttfautohint-py==0.6.0
+fontbakery[universal]

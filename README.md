@@ -53,6 +53,17 @@ pip install -r requirements.txt
 & "C:\Program Files (x86)\FontForgeBuilds\bin\ffpython.exe" .\fontforge_script.py && python3 .\fonttools_script.py
 ```
 
+### Linux / Docker
+
+```sh
+# フォントのビルド
+make build
+# フォントの Lint (チェック) を実行
+make lint
+# ビルド成果物の削除
+make clean
+```
+
 ### ビルドオプション
 
 `fontforge_script.py` 実行時、以下のオプションを指定できます。

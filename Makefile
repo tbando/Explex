@@ -18,6 +18,11 @@ build: build-image
 	docker run --rm -v $(PWD):/work $(IMAGE_NAME) \
 		bash -c "python3 ./fontforge_script.py --nerd-font --35 --console && python3 ./fonttools_script.py"
 
+# フォントのLintを実行 (Google Fonts等の標準に準拠しているか確認)
+lint: build-image
+	docker run --rm -v $(PWD):/work $(IMAGE_NAME) \
+		fontbakery check-profile universal build/*.ttf
+
 # ビルド成果物の削除
 clean:
 	rm -rf build/
