@@ -212,10 +212,14 @@ def generate_font(jp_style, eng_style, merged_style, italic=False):
         add_nerd_font_glyphs(jp_font, eng_font)
 
     # オプション毎の修飾子を追加する
-    variant = f"{CONSOLE_STR} " if options.get("console") else ""
-    variant += HIDDEN_ZENKAKU_SPACE_STR if options.get("hidden-zenkaku-space") else ""
-    variant += NERD_FONTS_STR if options.get("nerd-font") else ""
-    variant = variant.strip()
+    v_list = []
+    if options.get("console"):
+        v_list.append(CONSOLE_STR)
+    if options.get("hidden-zenkaku-space"):
+        v_list.append(HIDDEN_ZENKAKU_SPACE_STR)
+    if options.get("nerd-font"):
+        v_list.append(NERD_FONTS_STR)
+    variant = " ".join(v_list)
 
     # macOSでのpostテーブルの使用性エラー対策
     # 重複するグリフ名を持つグリフをリネームする
@@ -879,7 +883,7 @@ at: http://scripts.sil.org/OFL""",
     )
     w35_str = W35_WIDTH_STR if options.get("35") else ""
     font.familyname = f"{FONT_NAME}{w35_str} {variant}".strip()
-    font.fontname = f"{FONT_NAME}{w35_str}{variant}-{weight}"
+    font.fontname = f"{FONT_NAME}{w35_str}{variant}-{weight}".replace(" ", "-")
     font.fullname = f"{FONT_NAME}{w35_str} {variant}".strip() + f" {weight}"
     font.os2_vendor = VENDER_NAME
     font.copyright = COPYRIGHT
