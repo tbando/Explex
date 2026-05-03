@@ -879,7 +879,7 @@ Version 1.1. This license is available with a FAQ
 at: http://scripts.sil.org/OFL""".strip(),
         ),
         ("English (US)", "License URL", "http://scripts.sil.org/OFL".strip()),
-        ("English (US)", "Version", VERSION.strip()),
+        ("English (US)", "Version", f"Version {VERSION.strip()}"),
     )
     w35_str = W35_WIDTH_STR if options.get("35") else ""
     font.familyname = f"{FONT_NAME}{w35_str} {variant}".strip()
