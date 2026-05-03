@@ -15,6 +15,7 @@ settings = configparser.ConfigParser()
 settings.read("build.ini", encoding="utf-8")
 
 FONT_NAME = settings.get("DEFAULT", "FONT_NAME")
+VERSION = settings.get("DEFAULT", "VERSION")
 FONTFORGE_PREFIX = settings.get("DEFAULT", "FONTFORGE_PREFIX")
 FONTTOOLS_PREFIX = settings.get("DEFAULT", "FONTTOOLS_PREFIX")
 BUILD_FONTS_DIR = settings.get("DEFAULT", "BUILD_FONTS_DIR")
@@ -140,11 +141,48 @@ def fix_font_tables(style, variant):
         ]
     )
 
+    # ttLib を使ってさらに細かい修正 (Version, Mac名削除)
+    fix_head_and_name_tables(f"{BUILD_FONTS_DIR}/{output_name_base}_os2_post.ttf")
+
     # ファイル名を変更
     os.rename(
         f"{BUILD_FONTS_DIR}/{output_name_base}_os2_post.ttf",
         f"{BUILD_FONTS_DIR}/{completed_name_base}.ttf",
     )
+
+
+def fix_head_and_name_tables(font_path: str):
+    """head と name テーブルを最終調整する"""
+    font = ttLib.TTFont(font_path)
+
+    # head.fontRevision をセット (例: "0.1.0" -> 0.1)
+    try:
+        # メジャー.マイナー 形式にする (fontRevision は固定小数点)
+        rev = float(".".join(VERSION.split(".")[:2]))
+        font["head"].fontRevision = rev
+    except Exception as e:
+        print(f"Warning: Failed to set fontRevision: {e}")
+
+    # name テーブルの調整
+    name_table = font["name"]
+    new_names = []
+    for record in name_table.names:
+        # Platform 1 (Macintosh) は現代では不要なので削除
+        if record.platformID == 1:
+            continue
+
+        # Name ID 5 (Version) のプレフィックスを保証
+        if record.nameID == 5:
+            string = record.toUnicode()
+            if not string.startswith("Version "):
+                # 既存の文字列が "0.1.0; ..." のようになっていることを想定
+                new_string = f"Version {string}"
+                record.string = new_string.encode(record.getEncoding())
+
+        new_names.append(record)
+
+    name_table.names = new_names
+    font.save(font_path)
 
 
 def dump_ttx(input_name_base, output_name_base) -> ET:
