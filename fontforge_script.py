@@ -42,7 +42,7 @@ EM_ASCENT = int(settings.get("DEFAULT", "EM_ASCENT"))
 EM_DESCENT = int(settings.get("DEFAULT", "EM_DESCENT"))
 OS2_ASCENT = int(settings.get("DEFAULT", "OS2_ASCENT"))
 OS2_DESCENT = int(settings.get("DEFAULT", "OS2_DESCENT"))
-HALF_WIDTH_12 = int(settings.get("DEFAULT", "HALF_WIDTH_12"))
+HALF_WIDTH = int(settings.get("DEFAULT", "HALF_WIDTH"))
 
 COPYRIGHT = """[0xProto]
 Copyright (c) 2024, 0xType Project Authors https://github.com/0xType
@@ -703,9 +703,9 @@ def width_600(eng_font):
 def transform_half_width(jp_font, eng_font):
     """1:2幅になるように変換する。既に3:5幅になっていることを前提とする。"""
     before_width_eng = eng_font[0x0030].width
-    after_width_eng = HALF_WIDTH_12
+    after_width_eng = HALF_WIDTH
     # 最終的な設定幅に対してほんの少し広くなるように縮小する
-    x_scale = HALF_WIDTH_12 * 1.048 / before_width_eng
+    x_scale = HALF_WIDTH * 1.048 / before_width_eng
     for glyph in eng_font.glyphs():
         if glyph.width > 0:
             # リガチャ考慮

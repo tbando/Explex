@@ -19,7 +19,7 @@ VERSION = settings.get("DEFAULT", "VERSION")
 FONTFORGE_PREFIX = settings.get("DEFAULT", "FONTFORGE_PREFIX")
 FONTTOOLS_PREFIX = settings.get("DEFAULT", "FONTTOOLS_PREFIX")
 BUILD_FONTS_DIR = settings.get("DEFAULT", "BUILD_FONTS_DIR")
-HALF_WIDTH_12 = int(settings.get("DEFAULT", "HALF_WIDTH_12"))
+HALF_WIDTH = int(settings.get("DEFAULT", "HALF_WIDTH"))
 
 
 def main():
@@ -233,7 +233,7 @@ def fix_os2_table(xml: ET, style: str, flag_hw: bool = False):
     """OS/2 テーブルを編集する"""
     # xAvgCharWidthを編集
     # タグ形式: <xAvgCharWidth value="1000"/>
-    xml.find("OS_2/xAvgCharWidth").set("value", str(HALF_WIDTH_12))
+    xml.find("OS_2/xAvgCharWidth").set("value", str(HALF_WIDTH))
 
     # fsSelectionを編集
     # タグ形式: <fsSelection value="00000000 11000000" />
